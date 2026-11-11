@@ -1,6 +1,6 @@
-// Password gate for the whole site (Cloudflare Pages Function).
-// Set the password in Cloudflare: Pages project → Settings → Variables and Secrets →
-// add an encrypted variable named SITE_PASSWORD (Production), then redeploy.
+// Password gate for the whole site (Cloudflare Worker in front of static assets).
+// Set the password in Cloudflare: Workers & Pages → altmeter → Settings →
+// Variables and Secrets → Add → type Secret, name SITE_PASSWORD.
 // The cookie holds an HMAC derived from the password, never the password itself;
 // changing SITE_PASSWORD logs everyone out.
 
@@ -49,7 +49,8 @@ ${msg ? `<div class="err">${msg}</div>` : ''}
 const html = (body, status = 200, extra = {}) =>
   new Response(body, { status, headers: { 'Content-Type': 'text/html; charset=utf-8', 'Cache-Control': 'no-store', ...extra } });
 
-export async function onRequest({ request, env, next }) {
+async function handle(request, env) {
+  const next = () => env.ASSETS.fetch(request);
   const url = new URL(request.url);
   const secret = env.SITE_PASSWORD;
   if (!secret) return html('<h1>Not configured</h1><p>Set the SITE_PASSWORD secret in Cloudflare Pages settings and redeploy.</p>', 503);
@@ -76,3 +77,5 @@ export async function onRequest({ request, env, next }) {
   if (PUBLIC.has(url.pathname) || safeEqual(readCookie(request, COOKIE) || '', good)) return next();
   return html(page(), 401);
 }
+
+export default { fetch: handle };

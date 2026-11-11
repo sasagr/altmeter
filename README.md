@@ -20,22 +20,29 @@ Elevation above sea level and current weather for your GPS position, any city in
 
 Open-Meteo is free for non-commercial use (about 10,000 calls a day per user IP). If the app becomes commercial, check their terms.
 
+## Project layout
+- `public/`: the web app (static files)
+- `src/worker.js`: Cloudflare Worker that puts a password gate in front of `public/`
+- `wrangler.jsonc`: Worker config
+
 ## Run locally
 ```bash
-python3 -m http.server 8765
+python3 -m http.server 8765 -d public
 ```
-Then open http://localhost:8765. Geolocation works only on `localhost` or HTTPS.
+Then open http://localhost:8765 (no password gate). Geolocation works only on `localhost` or HTTPS.
 
-## Deploy (Cloudflare Pages + GitHub)
-1. Push this folder to a GitHub repository.
-2. Cloudflare dashboard → **Workers & Pages → Create → Pages → Connect to Git** → choose the repo.
-3. Framework preset: **None**, build command: empty, output directory: `/`.
-4. **Settings → Variables and Secrets → Add** (Production): type *Secret*, name `SITE_PASSWORD`, value = the password. Then **Deployments → Retry deployment** so it takes effect.
-5. **Custom domains → Set up a custom domain** → `altmeter.sasagr.uk`.
+To test with the password gate, put `SITE_PASSWORD=something` in `.dev.vars` (git-ignored) and run:
+```bash
+npx wrangler dev
+```
 
-## Password protection
-`functions/_middleware.js` gates every page behind a login form. The password lives only in the `SITE_PASSWORD` secret in Cloudflare (never in this repo). After signing in, the browser stays signed in for 30 days; visit `/__logout` to sign out. Changing the secret signs everyone out. Until the secret is set, the site answers "Not configured".
-
-Local `python3 -m http.server` skips the gate. To test it locally, use `npx wrangler pages dev . --binding SITE_PASSWORD=something`.
+## Deploy (Cloudflare Workers + GitHub)
+1. Cloudflare dashboard → **Workers & Pages → Create application → Import a repository** → `sasagr/altmeter`.
+2. Project name `altmeter`, build command empty, deploy command `npx wrangler deploy` (default) → **Deploy**.
+3. **altmeter → Settings → Variables and Secrets → Add**: type *Secret*, name `SITE_PASSWORD`, value = the password.
+4. **altmeter → Settings → Domains & Routes → Add → Custom domain** → `altmeter.sasagr.uk`.
 
 Every push to `main` redeploys automatically.
+
+## Password protection
+`src/worker.js` runs before every file is served and shows a login form. The password lives only in the `SITE_PASSWORD` secret in Cloudflare (never in this repo). After signing in, the browser stays signed in for 30 days; visit `/__logout` to sign out. Changing the secret signs everyone out. Until the secret is set, the site answers "Not configured".
