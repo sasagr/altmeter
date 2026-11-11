@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>AltMeter</title>
+  <meta name="description" content="Elevation above sea level and current weather for your GPS position, any city, or any point on the map.">
+  <meta name="theme-color" content="#0f766e">
+  <link rel="icon" href="icon.svg" type="image/svg+xml">
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div id="map" aria-label="Map"></div>
+
+  <header class="topbar">
+    <div class="search" role="search">
+      <svg class="search-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M10.5 3a7.5 7.5 0 0 1 5.9 12.1l4.8 4.8-1.4 1.4-4.8-4.8A7.5 7.5 0 1 1 10.5 3Zm0 2a5.5 5.5 0 1 0 0 11 5.5 5.5 0 0 0 0-11Z"/></svg>
+      <input id="q" type="search" placeholder="Search any city…" autocomplete="off" enterkeyhint="search" aria-label="Search city" aria-controls="results" aria-expanded="false">
+      <button id="clearQ" class="icon-btn" aria-label="Clear search" hidden>×</button>
+      <ul id="results" class="results" role="listbox" hidden></ul>
+    </div>
+    <button id="units" class="pill" aria-label="Switch units" title="Switch units">m · °C</button>
+  </header>
+
+  <div class="fabs">
+    <button id="locate" class="fab" aria-label="Go to my GPS position" title="My position">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 8a4 4 0 1 1 0 8 4 4 0 0 1 0-8Zm-1-7h2v3.06A8 8 0 0 1 19.94 11H23v2h-3.06A8 8 0 0 1 13 19.94V23h-2v-3.06A8 8 0 0 1 4.06 13H1v-2h3.06A8 8 0 0 1 11 4.06V1Zm1 5a6 6 0 1 0 0 12 6 6 0 0 0 0-12Z"/></svg>
+    </button>
+    <button id="saved" class="fab" aria-label="Saved pins" title="Saved pins">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 2h12a1 1 0 0 1 1 1v19l-7-4-7 4V3a1 1 0 0 1 1-1Zm1 2v14.55l5-2.86 5 2.86V4H7Z"/></svg>
+    </button>
+  </div>
+
+  <section id="panel" class="panel" aria-live="polite">
+    <button id="grip" class="grip" aria-label="Expand or collapse details"><span></span></button>
+    <div id="panelBody" class="panel-body">
+      <p class="hint">Tap anywhere on the map to drop a pin, search a city, or use <b>My position</b>.</p>
+    </div>
+  </section>
+
+  <section id="savedSheet" class="sheet" hidden>
+    <div class="sheet-head">
+      <h2>Saved pins</h2>
+      <button id="closeSaved" class="icon-btn" aria-label="Close">×</button>
+    </div>
+    <ul id="savedList" class="saved-list"></ul>
+  </section>
+
+  <div id="toast" class="toast" role="status" hidden></div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
